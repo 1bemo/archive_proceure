@@ -74,7 +74,7 @@ def sql_backup(sql_user, sql_password, sql_base_names, sql_script_file_path, tar
     scqript_text = ''
     for base_name in sql_base_names:
         base_target_path = f'{target_folder}\\{base_name}.bak'
-        scqript_text += f"BACKUP DATABASE [{base_name}] TO DISK = N'{base_target_path}' WITH NOFORMAT, NOINIT, NAME = N'{base_name}', SKIP, NOREWIND, NOUNLOAD, NO_COMPRESSION, STATS = 10\nGO\n"
+        scqript_text += f"BACKUP DATABASE [{base_name}] TO DISK = N'{base_target_path}' WITH NOFORMAT, NOINIT, NAME = N'{base_name}', SKIP, NOREWIND, NOUNLOAD, COMPRESSION, STATS = 10\nGO\n"
         returned.append(base_target_path)
 
     sql_script_file = open(sql_script_file_path, 'wt', -1, 'utf-8')
