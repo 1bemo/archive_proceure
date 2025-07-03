@@ -13,6 +13,7 @@ current_path = os.path.abspath(__file__).replace('\\main.py','')
 sql_base_names = []
 sql_user_name = ''
 sql_user_pass = ''
+sql_compression = ''
 files_for_archive = []
 winrar_path = ''
 archive_pass = ''
@@ -68,13 +69,14 @@ def rar_pack(winrar_path, password, to_path, files_paths):
     return returned
 
 # выгрузка бекапов из SQL
-def sql_backup(sql_user, sql_password, sql_base_names, sql_script_file_path, target_folder, sql_log_path):
+def sql_backup(sql_user, sql_password, sql_base_names, sql_script_file_path, target_folder, sql_log_path, compression):
     returned = []
 
     scqript_text = ''
     for base_name in sql_base_names:
         base_target_path = f'{target_folder}\\{base_name}.bak'
-        scqript_text += f"BACKUP DATABASE [{base_name}] TO DISK = N'{base_target_path}' WITH NOFORMAT, NOINIT, NAME = N'{base_name}', SKIP, NOREWIND, NOUNLOAD, COMPRESSION, STATS = 10\nGO\n"
+        compress = 'COMPRESSION' if compression == '1' else 'NO_COMPRESSION'
+        scqript_text += f"BACKUP DATABASE [{base_name}] TO DISK = N'{base_target_path}' WITH NOFORMAT, NOINIT, NAME = N'{base_name}', SKIP, NOREWIND, NOUNLOAD, {compress}, STATS = 10\nGO\n"
         returned.append(base_target_path)
 
     sql_script_file = open(sql_script_file_path, 'wt', -1, 'utf-8')
@@ -102,6 +104,7 @@ def main():
     global sql_base_names
     global sql_user_name
     global sql_user_pass
+    global sql_compression
     global files_for_archive
     global winrar_path
     global archive_pass
@@ -150,6 +153,8 @@ def main():
             sql_user_name = value
         elif param == 'sqlUserPassword':
             sql_user_pass = value
+        elif param == 'sqlCompression':
+            sql_compression = value
         elif param == 'winrarPath':
             winrar_path = value
         elif param == 'archivePass':
@@ -243,7 +248,7 @@ def main():
                 sql_log_path = f'{current_path}\\sql_log.log'
                 log(f'Начало выгрузки бекапов SQL')
                         
-                backup_paths = sql_backup(sql_user_name, sql_user_pass, sql_base_names, sql_script_path, temp_path, sql_log_path)
+                backup_paths = sql_backup(sql_user_name, sql_user_pass, sql_base_names, sql_script_path, temp_path, sql_log_path, sql_compression)
 
                 if not len(backup_paths) == 0:           
                     log('[УСПЕХ] Выгрузка бекапов SQL завершена')
